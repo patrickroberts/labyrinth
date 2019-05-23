@@ -1,0 +1,78 @@
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+div {
+  transform-style: preserve-3d;
+  box-sizing: border-box;
+}
+
+.map {
+  transform: rotateX(45deg) rotateZ(45deg);
+  font-size: 0;
+}
+
+.row {
+  height: 12.5%;
+}
+
+.tile {
+  width: 12.5%;
+  height: 100%;
+  display: inline-block;
+  position: relative;
+  border: 1px solid #bbb;
+}
+
+.tile:hover {
+  border-color: #888;
+}
+
+.tile:active {
+  border-color: #00f;
+}
+
+.tile[data-link~="top"] {
+  border-top-color: transparent;
+}
+
+.tile[data-link~="right"] {
+  border-right-color: transparent;
+}
+
+.tile[data-link~="bottom"] {
+  border-bottom-color: transparent;
+}
+
+.tile[data-link~="left"] {
+  border-left-color: transparent;
+}
+
+.tile[data-state]:before {
+  content: "";
+  position: absolute;
+  top: 10%;
+  right: 10%;
+  bottom: 10%;
+  left: 10%;
+  border-radius: 50%;
+}
+
+.tile[data-state="fight"]:before {
+  background-color: rgba(255, 0, 0, 0.5);
+}
+
+.tile[data-state="clear"]:before {
+  background-color: rgba(0, 255, 0, 0.5);
+}
+
+.tile[data-state="enter"]:before {
+  background-color: rgba(0, 0, 255, 0.5);
+}
