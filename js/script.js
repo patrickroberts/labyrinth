@@ -14,20 +14,6 @@ const links = []
 const states = {}
 let drops = []
 
-try {
-  const cached = JSON.parse(localStorage.links)
-  cached.forEach(link)
-} catch (error) {
-  localStorage.links = JSON.stringify(links)
-}
-
-try {
-  const cached = JSON.parse(localStorage.states)
-  Object.entries(cached).forEach(state)
-} catch (error) {
-  localStorage.states = JSON.stringify(states)
-}
-
 const link = (drop) => {
   if ('link' in tiles[drop.startIndex].dataset) {
     tiles[drop.startIndex].dataset.link += ' ' + drop.start
@@ -48,30 +34,18 @@ const state = ([index, state]) => {
   tiles[index].dataset.state = states[index] = state
 }
 
-const translate = (fn) => {
-  links.splice(0, links.length).map(link => {
-    delete tiles[link.startIndex].dataset.link
-    delete tiles[link.stopIndex].dataset.link
-
-    link.startIndex = fn(link.startIndex)
-    link.stopIndex = fn(link.stopIndex)
-
-    return link
-  }).forEach(link)
-  Object.entries(states).map(([key, state]) => {
-    const index = Number(key)
-
-    delete tiles[index].dataset.state
-    delete states[index]
-
-    return [fn(index), state]
-  }).forEach(state)
+try {
+  const cached = JSON.parse(localStorage.links)
+  cached.forEach(link)
+} catch (error) {
+  localStorage.links = JSON.stringify(links)
 }
 
-const match = (drop) => {
-  return link =>
-    link.startIndex === drop.startIndex && link.stopIndex === drop.stopIndex ||
-    link.startIndex === drop.stopIndex && link.stopIndex === drop.startIndex
+try {
+  const cached = JSON.parse(localStorage.states)
+  Object.entries(cached).forEach(state)
+} catch (error) {
+  localStorage.states = JSON.stringify(states)
 }
 
 const onResize = () => {
@@ -116,6 +90,12 @@ map.addEventListener('dragover', event => {
     event.preventDefault()
   }
 })
+
+const match = (drop) => {
+  return link =>
+    link.startIndex === drop.startIndex && link.stopIndex === drop.stopIndex ||
+    link.startIndex === drop.stopIndex && link.stopIndex === drop.startIndex
+}
 
 map.addEventListener('dragenter', event => {
   const index = Array.prototype.indexOf.call(tiles, event.target)
@@ -199,6 +179,26 @@ map.addEventListener('click', event => {
     localStorage.states = JSON.stringify(states)
   }
 })
+
+const translate = (fn) => {
+  links.splice(0, links.length).map(link => {
+    delete tiles[link.startIndex].dataset.link
+    delete tiles[link.stopIndex].dataset.link
+
+    link.startIndex = fn(link.startIndex)
+    link.stopIndex = fn(link.stopIndex)
+
+    return link
+  }).forEach(link)
+  Object.entries(states).map(([key, state]) => {
+    const index = Number(key)
+
+    delete tiles[index].dataset.state
+    delete states[index]
+
+    return [fn(index), state]
+  }).forEach(state)
+}
 
 document.addEventListener('keyup', event => {
   switch (event.code) {
