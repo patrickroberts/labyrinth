@@ -76,3 +76,7 @@ div {
 .tile[data-state="enter"]:before {
   background-color: rgba(0, 0, 255, 0.5);
 }
+
+.tile:not([data-link]):not([data-state]):not([style*=":"]) {
+  background-color: #eee;
+}
