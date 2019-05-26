@@ -203,12 +203,12 @@ const translate = fn => {
 
     return drop
   }).forEach(link)
-  Object.entries(states).map(([key, state]) => {
+  Object.entries(states).map(([key, value]) => {
     const index = Number(key)
 
     state([index, ''])
 
-    return [fn(index), state]
+    return [fn(index), value]
   }).forEach(state)
 }
 
