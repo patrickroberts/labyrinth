@@ -30,6 +30,7 @@ div {
   position: relative;
   border: 1px solid #bbb;
   background-color: #eee;
+  transform: translateZ(1px);
 }
 
 .room {

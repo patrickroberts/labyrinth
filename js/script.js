@@ -105,19 +105,19 @@ map.addEventListener('dragstart', event => {
   drops = []
 
   if (row >= 1) {
-    drops.push({ start: 'top', stop: 'bottom', cursor: 'nesw-resize', startIndex: index, stopIndex: index - 8 })
+    drops.push({ start: 'top', stop: 'bottom', startIndex: index, stopIndex: index - 8 })
   }
   if (column < 7) {
-    drops.push({ start: 'right', stop: 'left', cursor: 'nwse-resize', startIndex: index, stopIndex: index + 1 })
+    drops.push({ start: 'right', stop: 'left', startIndex: index, stopIndex: index + 1 })
   }
   if (row < 7) {
-    drops.push({ start: 'bottom', stop: 'top', cursor: 'nesw-resize', startIndex: index, stopIndex: index + 8 })
+    drops.push({ start: 'bottom', stop: 'top', startIndex: index, stopIndex: index + 8 })
   }
   if (column >= 1) {
-    drops.push({ start: 'left', stop: 'right', cursor: 'nwse-resize', startIndex: index, stopIndex: index - 1 })
+    drops.push({ start: 'left', stop: 'right', startIndex: index, stopIndex: index - 1 })
   }
 
-  event.dataTransfer.dropEffect = 'link'
+  event.dataTransfer.effectAllowed = 'move'
   event.dataTransfer.setDragImage(image, 0, 0)
 })
 
@@ -126,6 +126,7 @@ map.addEventListener('dragover', event => {
 
   if (drops.some(({ stopIndex }) => stopIndex === index)) {
     event.preventDefault()
+    event.dataTransfer.dropEffect = 'move'
   }
 })
 
@@ -133,16 +134,14 @@ map.addEventListener('dragenter', event => {
   const index = getIndex(event.target)
   const drop = drops.find(({ stopIndex }) => stopIndex === index)
 
-  if (drop) {
-    const exists = links.some(match(drop))
+  if (!drop) return
 
-    if (exists) {
-      unlink(drop)
-    } else {
-      link(drop)
-    }
+  const exists = links.some(match(drop))
 
-    map.style.cursor = drop.cursor
+  if (exists) {
+    unlink(drop)
+  } else {
+    link(drop)
   }
 })
 
@@ -150,16 +149,14 @@ map.addEventListener('dragleave', event => {
   const index = getIndex(event.target)
   const drop = drops.find(({ stopIndex }) => stopIndex === index)
 
-  if (drop) {
-    const exists = links.some(match(drop))
+  if (!drop) return 
 
-    if (exists) {
-      unlink(drop)
-    } else {
-      link(drop)
-    }
+  const exists = links.some(match(drop))
 
-    map.style.removeProperty('cursor')
+  if (exists) {
+    unlink(drop)
+  } else {
+    link(drop)
   }
 })
 
@@ -172,26 +169,27 @@ map.addEventListener('drop', event => {
   }
 })
 
-map.addEventListener('dragend', event => {
-  map.style.removeProperty('cursor')
-})
-
 map.addEventListener('click', event => {
   const index = getIndex(event.target)
 
-  if (index !== -1) {
-    if (states[index] === 'enter') {
-      state([index, ''])
-    } else if (states[index] === 'clear') {
-      state([index, 'enter'])
-    } else if (states[index] === 'fight') {
-      state([index, 'clear'])
-    } else {
-      state([index, 'fight'])
-    }
+  if (index === -1) return
 
-    localStorage.states = JSON.stringify(states)
+  switch (states[index]) {
+    case 'enter':
+      state([index, ''])
+      break
+    case 'clear':
+      state([index, 'enter'])
+      break
+    case 'fight':
+      state([index, 'clear'])
+      break
+    default:
+      state([index, 'fight'])
+      break
   }
+
+  localStorage.states = JSON.stringify(states)
 })
 
 const translate = fn => {
@@ -214,28 +212,28 @@ const translate = fn => {
 
 document.addEventListener('keyup', event => {
   switch (event.code) {
-  case 'Escape':
-    links.slice().forEach(unlink)
-    Object.keys(states).forEach(index => state([index, '']))
-    break
-  case 'ArrowUp':
-    translate(index => (index + 56) % 64)
-    break
-  case 'ArrowRight':
-    translate(index => {
-      const column = index % 8
-      return index - column + (column + 1) % 8
-    })
-    break
-  case 'ArrowDown':
-    translate(index => (index + 8) % 64)
-    break
-  case 'ArrowLeft':
-    translate(index => {
-      const column = index % 8
-      return index - column + (column + 7) % 8
-    })
-    break
+    case 'Escape':
+      links.slice().forEach(unlink)
+      Object.keys(states).forEach(index => state([index, '']))
+      break
+    case 'ArrowUp':
+      translate(index => (index + 56) % 64)
+      break
+    case 'ArrowRight':
+      translate(index => {
+        const column = index % 8
+        return index - column + (column + 1) % 8
+      })
+      break
+    case 'ArrowDown':
+      translate(index => (index + 8) % 64)
+      break
+    case 'ArrowLeft':
+      translate(index => {
+        const column = index % 8
+        return index - column + (column + 7) % 8
+      })
+      break
   }
 
   localStorage.links = JSON.stringify(links)
